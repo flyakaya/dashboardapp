@@ -1,0 +1,12 @@
+.next/
+out/
+build/
+coverage/
+package-lock.json
+next-env.d.ts
+
+# Provided assignment data — keep it byte-identical to what was handed over.
+app/assignment/
+
+# Local Claude Code setup, not project source.
+.claude/
