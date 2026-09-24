@@ -1,0 +1,11 @@
+/*
+ * Remove Tailwind's default colour palette so only design tokens exist as colour
+ * utilities (bg-card, text-severity-critical-fg …). A stray `bg-red-500` fails to
+ * compile instead of silently bypassing the design system.
+ * Must be imported before tokens.css.
+ */
+@theme {
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-black: #000000;
+}

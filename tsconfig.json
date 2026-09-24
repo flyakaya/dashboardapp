@@ -19,7 +19,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@indurex/ui": ["./ui/index.ts"],
+      "@indurex/ui/*": ["./ui/*"]
     }
   },
   "include": [

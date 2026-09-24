@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@import "../ui/styles/index.css";
+
+/* Stories live in ui/; make sure Tailwind scans them. */
+@source "../ui";
+
+/* In the app these come from next/font; here from Fontsource. */
+:root {
+  --font-geist-sans: "Geist Variable";
+  --font-geist-mono: "Geist Mono Variable";
+}

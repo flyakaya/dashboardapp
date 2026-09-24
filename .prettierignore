@@ -2,8 +2,12 @@
 out/
 build/
 coverage/
+storybook-static/
 package-lock.json
 next-env.d.ts
+
+# Generated from ui/tokens/tokens.json (npm run tokens).
+ui/styles/tokens.css
 
 # Provided assignment data — keep it byte-identical to what was handed over.
 app/assignment/

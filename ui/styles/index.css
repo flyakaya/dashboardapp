@@ -1,0 +1,11 @@
+/*
+ * @indurex/ui stylesheet entry. Import once, after `@import "tailwindcss";`:
+ *   @import "tailwindcss";
+ *   @import "@indurex/ui/styles/index.css";
+ */
+@import "tw-animate-css";
+/* shadcn variants used by radix-nova components (data-open, data-checked, …). */
+@import "shadcn/tailwind.css";
+@import "./palette-reset.css";
+@import "./tokens.css";
+@import "./theme.css";

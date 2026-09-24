@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "radix-nova",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "ui/styles/theme.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@indurex/ui/components",
+    "ui": "@indurex/ui/components",
+    "utils": "@indurex/ui/lib/utils",
+    "lib": "@indurex/ui/lib",
+    "hooks": "@indurex/ui/hooks"
+  },
+  "registries": {}
+}
