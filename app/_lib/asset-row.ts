@@ -33,6 +33,8 @@ export type AssetRow = {
   lastSeen?: string;
   /** `lastSeen` formatted in the site's timezone, for display. */
   lastSeenLabel?: string;
+  /** Ids of failed checks (e.g. "4.2"), for the dashboard's `?check=` link. */
+  failedCheckIds: string[];
   /** Lowercased haystack for the global search. */
   searchText: string;
 };

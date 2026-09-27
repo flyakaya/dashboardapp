@@ -23,9 +23,6 @@ type UrlTableStateOptions = {
 
 type ParamPatch = Record<string, string | readonly string[] | null>;
 
-/** Joins a filter's values into a memo key; never appears in the URL. */
-const KEY_SEPARATOR = "\u0000";
-
 function parseSorting(raw: string | null, sortIds: readonly string[]) {
   if (!raw) return undefined;
   const [id, direction] = raw.split(".");
@@ -91,14 +88,15 @@ export function useUrlTableState({
   // sorting array counts as a change and triggers autoResetPageIndex, which
   // would bounce every page change back to page 1. So each array is rebuilt
   // only when its own URL value changes.
-  const filtersKey = filterIds
-    .map((id) => searchParams.getAll(id).join(KEY_SEPARATOR))
-    .join("\n");
+  // JSON, so no filter value can collide with a separator.
+  const filtersKey = JSON.stringify(
+    filterIds.map((id) => searchParams.getAll(id)),
+  );
   const columnFilters = useMemo<ColumnFiltersState>(
     () =>
-      filtersKey.split("\n").flatMap((raw, i) => {
+      (JSON.parse(filtersKey) as string[][]).flatMap((values, i) => {
         const id = filterIds[i];
-        return id && raw ? [{ id, value: raw.split(KEY_SEPARATOR) }] : [];
+        return id && values.length ? [{ id, value: values }] : [];
       }),
     [filtersKey, filterIds],
   );

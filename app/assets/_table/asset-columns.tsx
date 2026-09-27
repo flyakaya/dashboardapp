@@ -7,7 +7,9 @@ import {
   createFilteredRowModel,
   createPaginatedRowModel,
   createSortedRowModel,
+  columnVisibilityFeature,
   filterFn_arrHas,
+  filterFn_arrIncludesSome,
   globalFilteringFeature,
   rowPaginationFeature,
   rowSortingFeature,
@@ -28,7 +30,7 @@ import {
 } from "@/app/_components/status-indicator";
 import type { FacetFilterConfig } from "@/app/_lib/table/facet-filters";
 
-import type { AssetRow } from "@/app/_data/asset-row";
+import type { AssetRow } from "@/app/_lib/asset-row";
 
 import { AssetNameLink } from "../_components/asset-name-link";
 
@@ -45,7 +47,11 @@ export const assetTableFeatures = tableFeatures({
   sortedRowModel: createSortedRowModel(),
   rowPaginationFeature,
   paginatedRowModel: createPaginatedRowModel(),
-  filterFns: { arrHas: filterFn_arrHas },
+  columnVisibilityFeature,
+  filterFns: {
+    arrHas: filterFn_arrHas,
+    arrIncludesSome: filterFn_arrIncludesSome,
+  },
   sortFns: { alphanumeric: sortFn_alphanumeric },
 });
 
@@ -166,6 +172,15 @@ export const assetColumns = helper.columns([
         muted
       ),
   }),
+  // Hidden (see HIDDEN_COLUMNS): only filters, via the dashboard's
+  // `?check=4.2` links to the assets that failed a check.
+  helper.accessor("failedCheckIds", {
+    id: "check",
+    header: "Failed checks",
+    filterFn: "arrIncludesSome",
+    getUniqueValues: (row) => row.failedCheckIds,
+    enableSorting: false,
+  }),
 ]);
 
 /** Filters shown in the toolbar; ids double as URL keys (`?zone=CDU`). */
@@ -199,6 +214,7 @@ export const ASSET_FILTERS: readonly FacetFilterConfig[] = [
       { value: "not-scored", label: "Not scored" },
     ],
   },
+  { id: "check", title: "Failed check", hidden: true },
   {
     id: "vulnerabilities",
     title: "Vulnerabilities",
@@ -210,6 +226,9 @@ export const ASSET_FILTERS: readonly FacetFilterConfig[] = [
 ];
 
 export const ASSET_FILTER_IDS = ASSET_FILTERS.map((f) => f.id);
+
+/** Columns that exist for filtering only and are never rendered. */
+export const HIDDEN_COLUMNS = { check: false } as const;
 
 /** Every column id, in order; all are sortable (`?sort=resilience.desc`). */
 export const ASSET_COLUMN_IDS = [

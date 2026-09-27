@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { matchesSearch } from "./asset-row";
 import { getAssetDetail } from "./asset-detail";
 import { getAssetRows } from "./assets";
+import { getSiteResilience } from "./resilience";
 
 const rows = getAssetRows();
 const search = (q: string) =>
@@ -81,5 +82,40 @@ describe("getAssetDetail", () => {
     ).toMatchObject({ cvss: 5, cvssVersion: "v2" });
 
     expect(getAssetDetail("AST-9999")).toBeUndefined();
+  });
+});
+
+describe("getSiteResilience", () => {
+  const site = getSiteResilience();
+
+  it("averages only scored assets and states coverage", () => {
+    expect(Math.round(site.averageScore ?? 0)).toBe(67);
+    expect(site.scoredCount).toBe(48);
+    expect(site.assetCount).toBe(80);
+  });
+
+  it("ranks controls lowest average first", () => {
+    expect(site.controls).toHaveLength(18);
+    const shown = site.controls.map((c) => Math.round(c.averageScore));
+    expect(shown).toEqual([...shown].sort((a, b) => a - b));
+    // Equal shown scores keep CIS order: CIS-1 before CIS-11 (both 61).
+    const ids = site.controls.map((c) => c.controlId);
+    expect(ids.indexOf("CIS-1")).toBeLessThan(ids.indexOf("CIS-11"));
+    expect(site.controls[0]).toMatchObject({
+      controlId: "CIS-10",
+      evaluatedCount: 14,
+    });
+    expect(Math.round(site.controls[0]?.averageScore ?? 0)).toBe(57);
+  });
+
+  it("counts failing checks per asset, matching the inventory link", () => {
+    const cis4 = site.controls.find((c) => c.controlId === "CIS-4");
+    expect(cis4?.failedHighCount).toBe(39);
+    expect(cis4?.failingChecks.find((c) => c.id === "4.2")?.assetCount).toBe(
+      17,
+    );
+    expect(rows.filter((r) => r.failedCheckIds.includes("4.2"))).toHaveLength(
+      17,
+    );
   });
 });

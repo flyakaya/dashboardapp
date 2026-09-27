@@ -9,6 +9,8 @@ export type FacetFilterConfig = {
   title: string;
   /** Fixed options in a meaningful order; omitted = the data's values, sorted. */
   options?: readonly FacetOption[];
+  /** Set only by links (e.g. from the dashboard): no toolbar button, but a chip. */
+  hidden?: boolean;
 };
 
 /** The column methods this selector needs (structural, feature-agnostic). */
@@ -48,7 +50,7 @@ export function selectFacetFilters(
   table: FacetTable,
   configs: readonly FacetFilterConfig[],
 ) {
-  const filters = configs.flatMap((config) => {
+  const all = configs.flatMap((config) => {
     const column = table.getColumn(config.id);
     if (!column) return [];
     const counts = column.getFacetedUniqueValues();
@@ -59,6 +61,7 @@ export function selectFacetFilters(
       {
         id: config.id,
         title: config.title,
+        hidden: config.hidden ?? false,
         options,
         counts,
         selected,
@@ -72,8 +75,8 @@ export function selectFacetFilters(
   });
 
   return {
-    filters,
-    active: filters.filter((f) => f.selected.length > 0),
+    filters: all.filter((f) => !f.hidden),
+    active: all.filter((f) => f.selected.length > 0),
     clearAll: () => table.resetColumnFilters(true),
   };
 }

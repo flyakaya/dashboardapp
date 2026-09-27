@@ -1,24 +1,30 @@
 import type { Metadata } from "next";
 
-import { TodoPage } from "@/app/_components/todo-page";
+import { getSiteResilience } from "@/app/_data/resilience";
 import { getSite } from "@/app/_data/site";
+
+import { ControlList } from "./_resilience/control-list";
+import { SiteScore } from "./_resilience/site-score";
 
 // The root layout's title template only applies to child segments, not "/".
 export const metadata: Metadata = {
   title: { absolute: "Resilience index · Indurex" },
 };
 
+// Server Component: read-only, no client state, no client JS.
 export default function ResilienceIndexPage() {
+  const site = getSiteResilience();
+
   return (
-    <TodoPage
-      title="Resilience index"
-      subtitle={`${getSite().name} · CIS Controls v8`}
-      figmaNode="4039-38"
-      todo={[
-        "Average resilience score of the scored assets, with coverage (48 of 80 assets scored)",
-        "Security controls list: 18 CIS controls, lowest average first, with assets evaluated and failed high-severity checks",
-        "Expand a control to see its failing checks; a check links to the inventory filtered to the failing assets",
-      ]}
-    />
+    <div className="flex flex-col gap-8">
+      <header className="flex flex-col gap-0.5">
+        <h1 className="text-xl font-semibold">Resilience index</h1>
+        <p className="text-sm text-muted-foreground">
+          {getSite().name} · CIS Controls v8
+        </p>
+      </header>
+      <SiteScore site={site} />
+      <ControlList controls={site.controls} />
+    </div>
   );
 }

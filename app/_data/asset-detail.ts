@@ -1,10 +1,9 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { ASSETS } from "@/app/assignment/assets";
-import {
-  ASSET_RESILIENCE,
-  SECURITY_CONTROLS,
-} from "@/app/assignment/security-controls";
+import { SECURITY_CONTROLS } from "@/app/assignment/security-controls";
 import type {
   ControlSeverity,
   Criticality,
@@ -12,7 +11,8 @@ import type {
 } from "@/app/assignment/types";
 
 import { deriveStatus, levelLabel, type AssetRowStatus } from "./asset-row";
-import { formatDate, formatDateTime } from "./format";
+import { formatDate, formatDateTime, formatSiteDate } from "./format";
+import { getResilienceIndex, SEVERITY_RANK } from "./resilience";
 import { getVulnerabilitiesFor } from "./vulnerabilities";
 
 // View-model for the asset detail page: everything it renders, ordered and
@@ -80,11 +80,6 @@ const SEVERITY_ORDER: Record<Severity, number> = {
   medium: 2,
   low: 3,
 };
-const CHECK_SEVERITY_ORDER: Record<ControlSeverity, number> = {
-  high: 0,
-  medium: 1,
-  low: 2,
-};
 const controlsById = new Map(SECURITY_CONTROLS.map((c) => [c.controlId, c]));
 const controlOrder = new Map(SECURITY_CONTROLS.map((c, i) => [c.controlId, i]));
 
@@ -117,7 +112,7 @@ function toVulnerabilities(
 }
 
 function toResilience(assetId: string): AssetDetail["resilience"] {
-  const index = ASSET_RESILIENCE.find((r) => r.assetId === assetId);
+  const index = getResilienceIndex(assetId);
   if (!index) return undefined;
 
   const controls = index.controlResults
@@ -131,10 +126,7 @@ function toResilience(assetId: string): AssetDetail["resilience"] {
       failedChecks: result.subControls
         .filter((s) => s.status === "failed")
         .map(({ id, title, severity }) => ({ id, title, severity }))
-        .sort(
-          (a, b) =>
-            CHECK_SEVERITY_ORDER[a.severity] - CHECK_SEVERITY_ORDER[b.severity],
-        ),
+        .sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity]),
     }))
     // Lowest score first; ties keep the CIS catalog order.
     .sort(
@@ -146,7 +138,7 @@ function toResilience(assetId: string): AssetDetail["resilience"] {
 
   const evaluated = new Set(controls.map((c) => c.controlId));
   return {
-    assessedLabel: formatDate(index.calculatedAt),
+    assessedLabel: formatSiteDate(index.calculatedAt),
     controls,
     failedCheckCount: controls.reduce((n, c) => n + c.failedChecks.length, 0),
     notEvaluated: SECURITY_CONTROLS.filter(
@@ -155,8 +147,13 @@ function toResilience(assetId: string): AssetDetail["resilience"] {
   };
 }
 
-/** Everything the detail page shows for one asset, or undefined if unknown. */
-export function getAssetDetail(assetId: string): AssetDetail | undefined {
+/**
+ * Everything the detail page shows for one asset, or undefined if unknown.
+ * `cache` dedupes per request: generateMetadata and the page share one build.
+ */
+export const getAssetDetail = cache(function getAssetDetail(
+  assetId: string,
+): AssetDetail | undefined {
   const asset = ASSETS.find((a) => a.assetId === assetId);
   if (!asset) return undefined;
 
@@ -177,4 +174,4 @@ export function getAssetDetail(assetId: string): AssetDetail | undefined {
     kevCount: vulnerabilities.filter((v) => v.isKev).length,
     resilience: toResilience(asset.assetId),
   };
-}
+});

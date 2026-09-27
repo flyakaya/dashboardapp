@@ -51,18 +51,23 @@ export function ControlResults({
                       </span>
                       <span>{control.name}</span>
                     </span>
+                    {/* sr-only labels: the header row is visual only. */}
                     <span className="text-right font-mono font-medium">
+                      <span className="sr-only">Score </span>
                       {control.score}
                     </span>
                     <span className="text-right font-mono text-muted-foreground">
+                      <span className="sr-only">Passed </span>
                       {control.passed}
                     </span>
                     <span
                       className={`text-right font-mono ${control.failed ? "" : "text-muted-foreground"}`}
                     >
+                      <span className="sr-only">Failed </span>
                       {control.failed}
                     </span>
                     <span className="text-right font-mono text-muted-foreground">
+                      <span className="sr-only">Not applicable </span>
                       {control.notApplicable}
                     </span>
                   </div>

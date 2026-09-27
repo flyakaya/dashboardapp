@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type MouseEvent } from "react";
+import { useEffect, useEffectEvent, type MouseEvent } from "react";
 import { useTable, type Row } from "@tanstack/react-table";
 
 import type { AssetRow } from "@/app/_data/asset-row";
@@ -8,7 +8,10 @@ import { matchesSearch } from "@/app/_data/asset-row";
 import { useRowNavigation } from "@/app/_hooks/use-row-navigation";
 import { useUrlTableState } from "@/app/_hooks/use-url-table-state";
 import { assetHref } from "@/app/_lib/routes";
-import { selectFacetFilters } from "@/app/_lib/table/facet-filters";
+import {
+  selectFacetFilters,
+  type FacetOption,
+} from "@/app/_lib/table/facet-filters";
 import { selectPagination } from "@/app/_lib/table/pagination";
 import { selectSortHeader } from "@/app/_lib/table/sort-header";
 
@@ -17,6 +20,7 @@ import {
   ASSET_FILTER_IDS,
   ASSET_FILTERS,
   assetColumns,
+  HIDDEN_COLUMNS,
   assetTableFeatures,
 } from "../_lib/asset-columns";
 
@@ -32,7 +36,10 @@ const DEFAULT_SORTING = [{ id: "name", desc: false }];
  * result is paged, and any change to them resets to page 1 (TanStack's
  * autoResetPageIndex, left on).
  */
-export function useAssetInventory(rows: AssetRow[]) {
+export function useAssetInventory(
+  rows: AssetRow[],
+  checkOptions: readonly FacetOption[],
+) {
   const { resetOutOfRangePage, ...urlState } = useUrlTableState({
     filterIds: ASSET_FILTER_IDS,
     sortIds: ASSET_COLUMN_IDS,
@@ -45,6 +52,7 @@ export function useAssetInventory(rows: AssetRow[]) {
     columns: assetColumns,
     data: rows,
     getRowId: (row) => row.assetId,
+    initialState: { columnVisibility: HIDDEN_COLUMNS },
     ...urlState,
     // One search over the precomputed haystack, run once per row (via "name").
     // No debounce: 80 rows filter in well under a millisecond per keystroke.
@@ -61,16 +69,22 @@ export function useAssetInventory(rows: AssetRow[]) {
 
   // A page beyond the result would render an empty table. Syncs the URL
   // (an external system), hence an effect.
+  // Runs only when the page or page count changes (not every render).
   const pageCount = table.getPageCount();
-  useEffect(
-    () => resetOutOfRangePage(pageCount),
-    [resetOutOfRangePage, pageCount],
-  );
+  const { pageIndex } = urlState.state.pagination;
+  const onPageOutOfRange = useEffectEvent(() => resetOutOfRangePage(pageCount));
+  useEffect(() => {
+    if (pageIndex > 0 && pageIndex >= pageCount) onPageOutOfRange();
+  }, [pageIndex, pageCount]);
 
   const openRow = useRowNavigation();
+  // The hidden check filter gets its titles from the server, so its chip reads
+  // "Failed check: 4.2 Default credentials changed".
   const { filters, active, clearAll } = selectFacetFilters(
     table,
-    ASSET_FILTERS,
+    ASSET_FILTERS.map((f) =>
+      f.id === "check" ? { ...f, options: checkOptions } : f,
+    ),
   );
   const query = table.state.globalFilter.trim();
   const matched = table.getRowCount();

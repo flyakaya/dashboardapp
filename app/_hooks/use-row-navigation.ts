@@ -16,6 +16,11 @@ export function useRowNavigation() {
     if ((event.target as HTMLElement).closest("a")) return;
     // Ending a text selection (copying an IP or MAC) is not a click.
     if (window.getSelection()?.toString()) return;
+    // Cmd/Ctrl/Shift-click means "open elsewhere", as on a real link.
+    if (event.metaKey || event.ctrlKey || event.shiftKey) {
+      window.open(href, "_blank", "noopener");
+      return;
+    }
     router.push(href);
   };
 }

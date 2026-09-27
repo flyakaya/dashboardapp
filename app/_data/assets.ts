@@ -9,6 +9,7 @@ import type { Asset } from "@/app/assignment/types";
 
 import { deriveStatus, levelLabel, type AssetRow } from "./asset-row";
 import { formatDateTime } from "./format";
+import { getFailedCheckIds } from "./resilience";
 import { getVulnerabilitiesFor } from "./vulnerabilities";
 
 /** "Crude distillation unit (CDU)" → "CDU"; falls back to the full label. */
@@ -53,6 +54,7 @@ function toAssetRow(asset: Asset): AssetRow {
     kevCount: vulns.filter((v) => v.isKev).length,
     lastSeen: asset.lastSeen ?? undefined,
     lastSeenLabel: asset.lastSeen ? formatDateTime(asset.lastSeen) : undefined,
+    failedCheckIds: getFailedCheckIds(asset.assetId),
     searchText,
   };
 }

@@ -14,6 +14,7 @@ import {
 } from "@indurex/ui";
 
 import type { AssetRow } from "@/app/_data/asset-row";
+import type { FacetOption } from "@/app/_lib/table/facet-filters";
 import { FacetFilter } from "@/app/_components/facet-filter";
 import { TablePagination } from "@/app/_components/table-pagination";
 
@@ -22,7 +23,14 @@ import { useAssetInventory } from "../_hooks/use-asset-inventory";
 const SORT_ICON = { asc: ChevronUp, desc: ChevronDown } as const;
 
 /** Renders the inventory view-model; all logic lives in useAssetInventory. */
-export function AssetTable({ rows }: { rows: AssetRow[] }) {
+export function AssetTable({
+  rows,
+  checkOptions,
+}: {
+  rows: AssetRow[];
+  /** Check titles for the `?check=` chip (server data, not bundled). */
+  checkOptions: readonly FacetOption[];
+}) {
   const {
     table,
     search,
@@ -34,13 +42,13 @@ export function AssetTable({ rows }: { rows: AssetRow[] }) {
     pagination,
     sortHeader,
     onRowClick,
-  } = useAssetInventory(rows);
+  } = useAssetInventory(rows, checkOptions);
 
   return (
     <div className="flex flex-col gap-5">
       <header className="flex items-baseline gap-2.5">
         <h1 className="text-xl font-semibold">Asset inventory</h1>
-        <p className="text-sm text-muted-foreground" aria-live="polite">
+        <p className="text-sm text-muted-foreground">
           {counts.narrowed
             ? `${counts.matched} of ${counts.total} assets`
             : `${counts.total} assets`}
@@ -125,7 +133,7 @@ export function AssetTable({ rows }: { rows: AssetRow[] }) {
                 className="cursor-pointer"
                 onClick={(event) => onRowClick(event, row)}
               >
-                {row.getAllCells().map((cell) => (
+                {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
                     <table.FlexRender cell={cell} />
                   </TableCell>
