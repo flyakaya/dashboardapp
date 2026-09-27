@@ -6,8 +6,11 @@ import { InfoTip } from "@/app/_components/info-tip";
 import { SeverityLabel } from "@/app/_components/severity-label";
 import { inventoryHref } from "@/app/_lib/routes";
 
-const COLUMNS =
-  "grid grid-cols-[minmax(0,1fr)_6rem_5rem_6rem_1rem] items-center gap-x-3 px-3";
+// Phones: each row stacks (name, then a line of labelled values). From `sm`
+// up: a column grid. One markup; the label spans double as sr-only labels.
+const GRID =
+  "sm:grid sm:grid-cols-[minmax(0,1fr)_6rem_5rem_6rem_1rem] sm:gap-x-3";
+const VALUE_LABEL = "font-sans text-xs text-muted-foreground sm:sr-only";
 
 /** The 18 CIS controls, lowest average first; each expands to its failing checks. */
 export function ControlList({ controls }: { controls: ControlSummary[] }) {
@@ -28,20 +31,23 @@ export function ControlList({ controls }: { controls: ControlSummary[] }) {
       </div>
 
       <div className="overflow-x-auto">
-        <div className="min-w-[36rem] text-sm">
-          {/* Header text is visual only (cells carry sr-only labels); the ⓘ stay reachable. */}
+        <div className="text-sm sm:min-w-[36rem]">
+          {/* Legend on phones, column header from `sm`. Header text is visual
+              only (cells carry their own labels); the ⓘ stay reachable. */}
           <div
-            className={`${COLUMNS} h-8 border-b text-xs font-medium text-muted-foreground`}
+            className={`${GRID} flex flex-wrap items-center gap-x-4 gap-y-1 border-b px-3 pb-2 text-xs font-medium text-muted-foreground sm:h-8 sm:pb-0`}
           >
-            <span aria-hidden>Control</span>
-            <span className="inline-flex items-center justify-end gap-1">
+            <span aria-hidden className="hidden sm:block">
+              Control
+            </span>
+            <span className="inline-flex items-center gap-1 sm:justify-end">
               <span aria-hidden>Avg score</span>
               <InfoTip term="controlScore" label="Avg score" />
             </span>
-            <span aria-hidden className="text-right">
+            <span aria-hidden className="sm:text-right">
               Assets
             </span>
-            <span className="inline-flex items-center justify-end gap-1">
+            <span className="inline-flex items-center gap-1 sm:justify-end">
               <span aria-hidden>Failed high</span>
               <InfoTip term="failedHigh" label="Failed high" />
             </span>
@@ -51,51 +57,57 @@ export function ControlList({ controls }: { controls: ControlSummary[] }) {
               <li key={control.controlId} className="border-b">
                 <details className="group">
                   <summary
-                    className={`${COLUMNS} h-10 cursor-pointer list-none hover:bg-muted/50 [&::-webkit-details-marker]:hidden`}
+                    className={`${GRID} grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-3 py-2.5 hover:bg-muted/50 sm:h-10 sm:py-0 [&::-webkit-details-marker]:hidden`}
                   >
-                    <span className="flex gap-3">
+                    <span className="order-1 flex gap-3 sm:order-none">
                       <span className="w-14 shrink-0 font-mono text-muted-foreground">
                         {control.controlId}
                       </span>
-                      <span className="truncate">{control.name}</span>
+                      <span className="sm:truncate">{control.name}</span>
                     </span>
-                    {/* sr-only labels: the header row is visual only. */}
-                    <span className="text-right font-mono font-medium">
-                      <span className="sr-only">Average score </span>
-                      {Math.round(control.averageScore)}
-                    </span>
-                    <span className="text-right font-mono text-muted-foreground">
-                      <span className="sr-only">Assets evaluated </span>
-                      {control.evaluatedCount}
-                    </span>
-                    <span
-                      className={`text-right font-mono ${control.failedHighCount ? "" : "text-muted-foreground"}`}
-                    >
-                      <span className="sr-only">
-                        Failed high-severity checks{" "}
+                    {/* Phones: one line of values under the name; from `sm`
+                        the wrapper disappears and each value is a column. */}
+                    <span className="order-3 col-span-2 flex flex-wrap gap-x-4 pl-[4.25rem] sm:contents">
+                      <span className="font-mono font-medium sm:text-right">
+                        <span className={VALUE_LABEL}>Avg score </span>
+                        {Math.round(control.averageScore)}
                       </span>
-                      {control.failedHighCount}
+                      <span className="font-mono text-muted-foreground sm:text-right">
+                        <span className={VALUE_LABEL}>Assets </span>
+                        {control.evaluatedCount}
+                      </span>
+                      <span
+                        className={`font-mono sm:text-right ${control.failedHighCount ? "" : "text-muted-foreground"}`}
+                      >
+                        <span className={VALUE_LABEL}>Failed high </span>
+                        {control.failedHighCount}
+                      </span>
                     </span>
                     <ChevronRight
                       aria-hidden
-                      className="size-4 text-muted-foreground transition-transform group-open:rotate-90"
+                      className="order-2 size-4 text-muted-foreground transition-transform group-open:rotate-90 sm:order-none"
                     />
                   </summary>
                   {control.failingChecks.length === 0 ? (
-                    <p className="pb-3 pl-[5.25rem] text-muted-foreground">
+                    <p className="px-3 pb-3 text-muted-foreground sm:pl-[5.25rem]">
                       No failing checks.
                     </p>
                   ) : (
                     <ul
                       aria-label={`Failing checks in ${control.controlId}`}
-                      className="flex flex-col gap-1.5 pr-3 pb-3 pl-[5.25rem]"
+                      className="flex flex-col gap-2 px-3 pb-3 sm:gap-1.5 sm:pl-[5.25rem]"
                     >
                       {control.failingChecks.map((check) => (
-                        <li key={check.id} className="flex items-center gap-3">
+                        <li
+                          key={check.id}
+                          className="flex flex-wrap items-center gap-x-3 gap-y-0.5"
+                        >
                           <span className="w-9 shrink-0 font-mono text-xs text-muted-foreground">
                             {check.id}
                           </span>
-                          <span>{check.title}</span>
+                          <span className="min-w-0 flex-1 sm:flex-none">
+                            {check.title}
+                          </span>
                           <SeverityLabel
                             severity={check.severity}
                             className="text-xs text-muted-foreground"

@@ -29,6 +29,12 @@ import { useAssetInventory } from "../_hooks/use-asset-inventory";
 
 const SORT_ICON = { asc: ChevronUp, desc: ChevronDown } as const;
 
+// The asset name stays pinned while the table scrolls sideways on narrow
+// screens. Opaque background (plus the row's hover tint as an overlay), so
+// scrolled cells never show through.
+const PINNED =
+  "sticky left-0 z-10 bg-background shadow-[inset_-1px_0_0_var(--border)] group-hover/row:bg-linear-to-r group-hover/row:from-muted/50 group-hover/row:to-muted/50";
+
 /** Renders the inventory view-model; all logic lives in useAssetInventory. */
 export function AssetTable({
   rows,
@@ -64,18 +70,22 @@ export function AssetTable({
       </header>
 
       <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
           <SearchInput
             layout="toolbar"
             label="Search assets"
-            placeholder="Search name, IP, MAC, vendor, CVE…"
+            placeholder="Search name, IP, MAC, CVE…"
             className="w-full sm:w-80"
             value={search.value}
             onValueChange={search.onChange}
           />
-          {filters.map((filter) => (
-            <FacetFilter key={filter.id} {...filter} />
-          ))}
+          {/* Phones: one row that scrolls sideways (edge to edge, with room
+              for the count badges). From `sm`: the buttons join the row. */}
+          <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pt-2 pb-1 sm:contents">
+            {filters.map((filter) => (
+              <FacetFilter key={filter.id} {...filter} />
+            ))}
+          </div>
         </div>
 
         {/* Reserved chip-height row: applying a filter doesn't push the table. */}
@@ -115,7 +125,13 @@ export function AssetTable({
                   const SortIcon = sorted ? SORT_ICON[sorted] : ChevronsUpDown;
                   const help = headerHelp(header.column.id);
                   return (
-                    <TableHead key={header.id} aria-sort={ariaSort}>
+                    <TableHead
+                      key={header.id}
+                      aria-sort={ariaSort}
+                      className={
+                        header.column.id === "name" ? PINNED : undefined
+                      }
+                    >
                       {/* The ⓘ sits beside the sort button, never inside it. */}
                       <span className="inline-flex items-center gap-1">
                         <button
@@ -151,11 +167,14 @@ export function AssetTable({
             {table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                className="cursor-pointer"
+                className="group/row cursor-pointer"
                 onClick={(event) => onRowClick(event, row)}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell
+                    key={cell.id}
+                    className={cell.column.id === "name" ? PINNED : undefined}
+                  >
                     <table.FlexRender cell={cell} />
                   </TableCell>
                 ))}

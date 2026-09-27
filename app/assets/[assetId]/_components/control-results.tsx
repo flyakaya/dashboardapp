@@ -4,8 +4,11 @@ import type { AssetDetail } from "@/app/_data/asset-detail";
 import { InfoTip } from "@/app/_components/info-tip";
 import { SeverityLabel } from "@/app/_components/severity-label";
 
-const COLUMNS =
-  "grid grid-cols-[minmax(0,1fr)_4rem_4rem_4rem_4rem] items-center gap-x-3 px-3";
+// Phones: each row stacks (name, then a line of labelled values). From `sm`
+// up: a column grid. The label spans double as sr-only labels.
+const GRID =
+  "sm:grid sm:grid-cols-[minmax(0,1fr)_4rem_4rem_4rem_4rem] sm:gap-x-3";
+const VALUE_LABEL = "font-sans text-xs text-muted-foreground sm:sr-only";
 
 /** Security-control results for one asset: lowest score first, failed checks listed. */
 export function ControlResults({
@@ -16,9 +19,14 @@ export function ControlResults({
   return (
     <section aria-labelledby="controls" className="flex flex-col gap-3">
       <div className="flex flex-col gap-0.5">
-        <h2 id="controls" className="flex items-center gap-2">
+        <h2
+          id="controls"
+          className="flex flex-wrap items-center gap-x-2 gap-y-0.5"
+        >
           <ShieldCheck aria-hidden className="size-4 text-muted-foreground" />
-          <span className="text-base font-semibold">Security controls</span>
+          <span className="text-base font-semibold whitespace-nowrap">
+            Security controls
+          </span>
           <span className="text-sm text-muted-foreground">
             {resilience
               ? `${resilience.controls.length} evaluated · ${resilience.failedCheckCount} failed checks`
@@ -41,22 +49,25 @@ export function ControlResults({
 
       {resilience && (
         <div className="overflow-x-auto">
-          <div className="min-w-[36rem] text-sm">
-            {/* Header text is visual only (cells carry sr-only labels); the ⓘ stay reachable. */}
+          <div className="text-sm sm:min-w-[36rem]">
+            {/* Legend on phones (just the ⓘ term), column header from `sm`.
+                Header text is visual only; the ⓘ stay reachable. */}
             <div
-              className={`${COLUMNS} h-8 border-b text-xs font-medium text-muted-foreground`}
+              className={`${GRID} flex items-center border-b px-3 pb-2 text-xs font-medium text-muted-foreground sm:h-8 sm:pb-0`}
             >
-              <span aria-hidden>Control</span>
-              <span aria-hidden className="text-right">
+              <span aria-hidden className="hidden sm:block">
+                Control
+              </span>
+              <span aria-hidden className="hidden text-right sm:block">
                 Score
               </span>
-              <span aria-hidden className="text-right">
+              <span aria-hidden className="hidden text-right sm:block">
                 Passed
               </span>
-              <span aria-hidden className="text-right">
+              <span aria-hidden className="hidden text-right sm:block">
                 Failed
               </span>
-              <span className="inline-flex items-center justify-end gap-1">
+              <span className="inline-flex items-center gap-1 sm:justify-end">
                 <span aria-hidden>N/A</span>
                 <InfoTip term="notApplicable" label="N/A" />
               </span>
@@ -64,44 +75,51 @@ export function ControlResults({
             <ul>
               {resilience.controls.map((control) => (
                 <li key={control.controlId} className="border-b py-2">
-                  <div className={COLUMNS}>
-                    <span className="flex gap-3">
+                  <div
+                    className={`${GRID} flex flex-wrap items-center gap-x-4 gap-y-1 px-3`}
+                  >
+                    <span className="flex w-full gap-3 sm:w-auto">
                       <span className="w-14 shrink-0 font-mono text-muted-foreground">
                         {control.controlId}
                       </span>
                       <span>{control.name}</span>
                     </span>
-                    {/* sr-only labels: the header row is visual only. */}
-                    <span className="text-right font-mono font-medium">
-                      <span className="sr-only">Score </span>
+                    {/* Phones: the values line starts under the name. */}
+                    <span className="ml-[4.25rem] font-mono font-medium sm:ml-0 sm:text-right">
+                      <span className={VALUE_LABEL}>Score </span>
                       {control.score}
                     </span>
-                    <span className="text-right font-mono text-muted-foreground">
-                      <span className="sr-only">Passed </span>
+                    <span className="font-mono text-muted-foreground sm:text-right">
+                      <span className={VALUE_LABEL}>Passed </span>
                       {control.passed}
                     </span>
                     <span
-                      className={`text-right font-mono ${control.failed ? "" : "text-muted-foreground"}`}
+                      className={`font-mono sm:text-right ${control.failed ? "" : "text-muted-foreground"}`}
                     >
-                      <span className="sr-only">Failed </span>
+                      <span className={VALUE_LABEL}>Failed </span>
                       {control.failed}
                     </span>
-                    <span className="text-right font-mono text-muted-foreground">
-                      <span className="sr-only">Not applicable </span>
+                    <span className="font-mono text-muted-foreground sm:text-right">
+                      <span className={VALUE_LABEL}>N/A </span>
                       {control.notApplicable}
                     </span>
                   </div>
                   {control.failedChecks.length > 0 && (
                     <ul
                       aria-label={`Failed checks in ${control.controlId}`}
-                      className="mt-1 flex flex-col gap-1 pl-[5.25rem]"
+                      className="mt-1.5 flex flex-col gap-1.5 px-3 sm:gap-1 sm:pl-[5.25rem]"
                     >
                       {control.failedChecks.map((check) => (
-                        <li key={check.id} className="flex items-center gap-3">
+                        <li
+                          key={check.id}
+                          className="flex flex-wrap items-center gap-x-3 gap-y-0.5"
+                        >
                           <span className="w-9 shrink-0 font-mono text-xs text-muted-foreground">
                             {check.id}
                           </span>
-                          <span>{check.title}</span>
+                          <span className="min-w-0 flex-1 sm:flex-none">
+                            {check.title}
+                          </span>
                           <SeverityLabel
                             severity={check.severity}
                             className="text-xs text-muted-foreground"

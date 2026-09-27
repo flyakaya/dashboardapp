@@ -56,7 +56,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <SidebarProvider defaultOpen={sidebarOpen}>
             {/* Server-computed props: the client sidebar must not import the dataset. */}
             <AppSidebar siteName={site.name} assetCount={assetCount} />
-            <SidebarInset className="px-8 pt-6 pb-8">
+            <SidebarInset className="px-4 pt-4 pb-8 sm:px-8 sm:pt-6">
               {/* Visible toggle (also ⌘B and the rail); opens the sheet on phones. */}
               <SidebarTrigger className="mb-4 -ml-2" />
               {children}

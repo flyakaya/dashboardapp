@@ -7,7 +7,8 @@ import { InfoTip } from "@/app/_components/info-tip";
 export function SiteScore({ site }: { site: SiteResilience }) {
   return (
     <section aria-labelledby="site-score" className="flex flex-col gap-1">
-      <div className="flex items-center gap-1.5">
+      {/* items-start: the ⓘ stays on the label's first line when it wraps. */}
+      <div className="flex items-start gap-1.5">
         <h2 id="site-score" className="text-sm text-muted-foreground">
           Average resilience score · across {site.scoredCount} scored assets
         </h2>

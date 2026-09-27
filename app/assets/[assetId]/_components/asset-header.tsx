@@ -35,9 +35,12 @@ export function AssetHeader({ asset }: { asset: AssetDetail }) {
           </span>
         </div>
         <p className="flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
-          <AssetTypeIcon type={asset.type} className="size-4" />
-          {asset.type} · {asset.vendor} {asset.model} · {asset.zoneName} ·{" "}
-          {asset.level}
+          {/* Icon and type stay together when the line wraps. */}
+          <span className="inline-flex items-center gap-1.5">
+            <AssetTypeIcon type={asset.type} className="size-4" />
+            {asset.type}
+          </span>
+          · {asset.vendor} {asset.model} · {asset.zoneName} · {asset.level}
         </p>
       </div>
 
