@@ -78,28 +78,31 @@ export function AssetTable({
           ))}
         </div>
 
-        {activeFilters.length > 0 && (
-          <ul aria-label="Active filters" className="flex flex-wrap gap-1.5">
-            {activeFilters.map((filter) => (
-              <li key={filter.id}>
-                <Button
-                  variant="secondary"
-                  size="xs"
-                  iconEnd={<X />}
-                  aria-label={`Remove ${filter.title} filter`}
-                  onClick={filter.clear}
-                >
-                  {filter.chipLabel}
+        {/* Reserved chip-height row: applying a filter doesn't push the table. */}
+        <div className="min-h-6">
+          {activeFilters.length > 0 && (
+            <ul aria-label="Active filters" className="flex flex-wrap gap-1.5">
+              {activeFilters.map((filter) => (
+                <li key={filter.id}>
+                  <Button
+                    variant="secondary"
+                    size="xs"
+                    iconEnd={<X />}
+                    aria-label={`Remove ${filter.title} filter`}
+                    onClick={filter.clear}
+                  >
+                    {filter.chipLabel}
+                  </Button>
+                </li>
+              ))}
+              <li>
+                <Button variant="ghost" size="xs" onClick={clearFilters}>
+                  Clear all
                 </Button>
               </li>
-            ))}
-            <li>
-              <Button variant="ghost" size="xs" onClick={clearFilters}>
-                Clear all
-              </Button>
-            </li>
-          </ul>
-        )}
+            </ul>
+          )}
+        </div>
       </div>
 
       <div>
