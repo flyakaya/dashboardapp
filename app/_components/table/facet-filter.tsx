@@ -53,6 +53,7 @@ export function FacetFilter({
         <Button
           variant="outline"
           size="sm"
+          className="relative"
           iconEnd={<ChevronDown />}
           aria-label={
             selected.length
@@ -60,10 +61,20 @@ export function FacetFilter({
               : `${title} filter`
           }
         >
-          {selected.length ? `${title} · ${selected.length}` : title}
+          {title}
+          {/* Overlaid, so it takes no layout space: selecting a value never
+              changes the trigger's width or shifts the buttons after it. */}
+          {selected.length > 0 && (
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] leading-none font-semibold text-primary-foreground tabular-nums"
+            >
+              {selected.length}
+            </span>
+          )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-56 gap-0 p-1">
+      <PopoverContent align="start" className="w-64 gap-0 p-1">
         <ul aria-label={`${title} options`}>
           {visible.map((option, index) => {
             // Index, not value: values like "IP camera" contain spaces.
@@ -81,6 +92,12 @@ export function FacetFilter({
                   }
                 />
                 <Label htmlFor={id} className="flex-1 font-normal">
+                  {option.icon && (
+                    <option.icon
+                      aria-hidden
+                      className="size-3.5 shrink-0 text-muted-foreground"
+                    />
+                  )}
                   {option.label}
                 </Label>
                 <span className="font-mono text-xs text-muted-foreground">

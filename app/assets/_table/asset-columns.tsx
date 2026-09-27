@@ -24,7 +24,10 @@ import {
   CriticalityMeter,
   criticalityLabel,
 } from "@/app/_components/criticality-meter";
-import { AssetTypeIcon } from "@/app/_components/asset-type-icon";
+import {
+  AssetTypeIcon,
+  getAssetTypeIcon,
+} from "@/app/_components/asset-type-icon";
 import {
   StatusIndicator,
   statusLabel,
@@ -203,7 +206,8 @@ export const assetColumns = helper.columns([
 export const ASSET_FILTERS: readonly FacetFilterConfig[] = [
   { id: "zone", title: "Zone" },
   { id: "level", title: "Level" },
-  { id: "type", title: "Type" },
+  // Same glyphs as the Type column, so the list and the rows match.
+  { id: "type", title: "Type", iconFor: getAssetTypeIcon },
   {
     id: "status",
     title: "Status",

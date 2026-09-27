@@ -52,6 +52,11 @@ const ICON: Record<AssetType, LucideIcon> = {
   "IP camera": Cctv,
 };
 
+/** The icon for a type (e.g. for filter options), or undefined if unknown. */
+export function getAssetTypeIcon(type: string): LucideIcon | undefined {
+  return ICON[type as AssetType];
+}
+
 /** Decorative: the type name is always shown next to it. */
 export function AssetTypeIcon({
   type,

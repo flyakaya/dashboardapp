@@ -73,6 +73,23 @@ describe("selectFacetFilters", () => {
     ]);
   });
 
+  it("attaches icons to data-derived options via iconFor", () => {
+    const Icon = () => null;
+    const withIcons: FacetFilterConfig[] = [
+      {
+        id: "zone",
+        title: "Zone",
+        iconFor: (v) => (v === "CDU" ? Icon : undefined),
+      },
+    ];
+    const t = table({ zone: column({ CDU: 1, CTL: 2 }) });
+    const [zone] = selectFacetFilters(t, withIcons).filters;
+    expect(zone?.options).toEqual([
+      { value: "CDU", label: "CDU", icon: Icon },
+      { value: "CTL", label: "CTL", icon: undefined },
+    ]);
+  });
+
   it("clears a filter by setting undefined, never an empty array", () => {
     const zone = column({ CDU: 1 }, ["CDU"]);
     const t = table({ zone, status: column({}), check: column({}) });

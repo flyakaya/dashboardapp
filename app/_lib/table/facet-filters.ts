@@ -1,7 +1,12 @@
 // Faceted-filter view-model for any TanStack table with column filtering and
 // faceting. Pure: call it during the render that owns the table.
 
-export type FacetOption = { value: string; label: string };
+import type { ComponentType } from "react";
+
+/** An option's optional glyph (e.g. a lucide icon); decorative, text always shown. */
+export type OptionIcon = ComponentType<{ className?: string }>;
+
+export type FacetOption = { value: string; label: string; icon?: OptionIcon };
 
 export type FacetFilterConfig = {
   /** Column id; also the URL key when paired with useUrlTableState. */
@@ -11,6 +16,8 @@ export type FacetFilterConfig = {
   options?: readonly FacetOption[];
   /** Set only by links (e.g. from the dashboard): no toolbar button, but a chip. */
   hidden?: boolean;
+  /** Icon per option value, for options derived from the data. */
+  iconFor?: (value: string) => OptionIcon | undefined;
 };
 
 /** The column methods this selector needs (structural, feature-agnostic). */
@@ -39,7 +46,7 @@ function optionsFor(
   const values = new Set([...[...counts.keys()].map(String), ...selected]);
   return [...values]
     .sort((a, b) => a.localeCompare(b, "en", { numeric: true }))
-    .map((value) => ({ value, label: value }));
+    .map((value) => ({ value, label: value, icon: config.iconFor?.(value) }));
 }
 
 function labelOf(options: readonly FacetOption[], value: string) {
