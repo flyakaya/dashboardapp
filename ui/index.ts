@@ -12,6 +12,7 @@ export {
   CardHeader,
   CardTitle,
 } from "@indurex/ui/components/card";
+export { Checkbox } from "@indurex/ui/components/checkbox";
 export {
   Field,
   FieldContent,
@@ -35,6 +36,15 @@ export {
 } from "@indurex/ui/components/input-group";
 export { Kbd, KbdGroup } from "@indurex/ui/components/kbd";
 export { Label } from "@indurex/ui/components/label";
+export {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@indurex/ui/components/popover";
 export {
   SearchInput,
   type SearchInputProps,
@@ -77,6 +87,16 @@ export {
 export { Skeleton } from "@indurex/ui/components/skeleton";
 export { Spinner } from "@indurex/ui/components/spinner";
 export {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@indurex/ui/components/table";
+export {
   Tabs,
   TabsContent,
   TabsList,
@@ -93,3 +113,5 @@ export {
 export { applyTheme, DEFAULT_THEME, type Theme } from "@indurex/ui/theme/theme";
 export { ThemeScript } from "@indurex/ui/theme/theme-script";
 export { ThemeToggle, useTheme } from "@indurex/ui/theme/theme-toggle";
+
+export { cn } from "@indurex/ui/lib/utils";

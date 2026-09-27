@@ -1,17 +1,24 @@
-import { ThemeToggle } from "@indurex/ui";
+import type { Metadata } from "next";
 
-import { PocPanel } from "./poc-panel";
+import { TodoPage } from "@/app/_components/todo-page";
+import { getSite } from "@/app/_data/site";
 
-export default function Home() {
+// The root layout's title template only applies to child segments, not "/".
+export const metadata: Metadata = {
+  title: { absolute: "Resilience index · Indurex" },
+};
+
+export default function ResilienceIndexPage() {
   return (
-    <div className="flex flex-1 flex-col">
-      <header className="flex items-center justify-between border-b px-6 py-3">
-        <span className="text-sm font-medium">Indurex · Port Meridian</span>
-        <ThemeToggle />
-      </header>
-      <main className="flex flex-1 items-center justify-center p-6">
-        <PocPanel />
-      </main>
-    </div>
+    <TodoPage
+      title="Resilience index"
+      subtitle={`${getSite().name} · CIS Controls v8`}
+      figmaNode="4039-38"
+      todo={[
+        "Average resilience score of the scored assets, with coverage (48 of 80 assets scored)",
+        "Security controls list: 18 CIS controls, lowest average first, with assets evaluated and failed high-severity checks",
+        "Expand a control to see its failing checks; a check links to the inventory filtered to the failing assets",
+      ]}
+    />
   );
 }

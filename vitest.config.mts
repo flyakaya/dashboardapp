@@ -9,6 +9,11 @@ export default defineConfig({
       { find: /^@indurex\/ui$/, replacement: r("./ui/index.ts") },
       { find: /^@indurex\/ui\/(.*)$/, replacement: r("./ui/$1") },
       { find: /^@\/(.*)$/, replacement: r("./$1") },
+      // Next.js resolves `server-only` for server code; tests run in plain node.
+      {
+        find: /^server-only$/,
+        replacement: r("./node_modules/server-only/empty.js"),
+      },
     ],
   },
   test: {

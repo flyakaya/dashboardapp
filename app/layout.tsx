@@ -1,7 +1,18 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { cookies } from "next/headers";
 
-import { ThemeScript, TooltipProvider } from "@indurex/ui";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+  ThemeScript,
+  TooltipProvider,
+} from "@indurex/ui";
+
+import { AppSidebar } from "@/app/_components/app-sidebar";
+import { getAssetCount } from "@/app/_data/assets";
+import { getSite } from "@/app/_data/site";
 
 import "./globals.css";
 
@@ -16,11 +27,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Indurex",
-  description: "OT/ICS security dashboard — Port Meridian refinery",
+  title: { default: "Indurex", template: "%s · Indurex" },
+  description: `OT/ICS security dashboard — ${getSite().name}`,
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // SidebarProvider writes this cookie when the sidebar is toggled; reading it
+  // here keeps a collapsed sidebar collapsed across reloads without a flash.
+  const sidebarOpen = (await cookies()).get("sidebar_state")?.value !== "false";
+
   return (
     // Dark is the server-rendered default; ThemeScript swaps it before paint
     // if the user chose light, so React must accept the DOM's class.
@@ -33,7 +48,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ThemeScript />
       </head>
       <body className="flex min-h-full flex-col">
-        <TooltipProvider>{children}</TooltipProvider>
+        <TooltipProvider>
+          <SidebarProvider defaultOpen={sidebarOpen}>
+            {/* Server-computed props: the client sidebar must not import the dataset. */}
+            <AppSidebar
+              siteName={getSite().name}
+              assetCount={getAssetCount()}
+            />
+            <SidebarInset className="px-8 pt-6 pb-8">
+              {/* Visible toggle (also ⌘B and the rail); opens the sheet on phones. */}
+              <SidebarTrigger className="mb-4 -ml-2" />
+              {children}
+            </SidebarInset>
+          </SidebarProvider>
+        </TooltipProvider>
       </body>
     </html>
   );
