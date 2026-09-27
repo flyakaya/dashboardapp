@@ -5,6 +5,7 @@ import { cache } from "react";
 import { ASSETS } from "@/app/assignment/assets";
 import { SECURITY_CONTROLS } from "@/app/assignment/security-controls";
 import type {
+  AssetType,
   ControlSeverity,
   Criticality,
   Severity,
@@ -59,7 +60,7 @@ type ControlResultView = {
 export type AssetDetail = {
   assetId: string;
   name: string;
-  type: string;
+  type: AssetType;
   vendor: string;
   model: string;
   zoneName: string;

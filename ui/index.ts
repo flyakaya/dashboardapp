@@ -45,6 +45,7 @@ export {
   PopoverTitle,
   PopoverTrigger,
 } from "@indurex/ui/components/popover";
+export { Progress } from "@indurex/ui/components/progress";
 export {
   SearchInput,
   type SearchInputProps,

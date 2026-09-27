@@ -24,6 +24,7 @@ import {
   CriticalityMeter,
   criticalityLabel,
 } from "@/app/_components/criticality-meter";
+import { AssetTypeIcon } from "@/app/_components/asset-type-icon";
 import {
   StatusIndicator,
   statusLabel,
@@ -91,7 +92,16 @@ export const assetColumns = helper.columns([
       <AssetNameLink assetId={row.original.assetId} name={row.original.name} />
     ),
   }),
-  helper.accessor("type", { header: "Type", filterFn: "arrHas" }),
+  helper.accessor("type", {
+    header: "Type",
+    filterFn: "arrHas",
+    cell: ({ getValue }) => (
+      <span className="inline-flex items-center gap-2">
+        <AssetTypeIcon type={getValue()} />
+        {getValue()}
+      </span>
+    ),
+  }),
   helper.accessor("zone", {
     header: "Zone",
     filterFn: "arrHas",

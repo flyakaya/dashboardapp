@@ -1,6 +1,12 @@
 "use client";
 
-import { ChevronDown, ChevronsUpDown, ChevronUp, X } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronsUpDown,
+  ChevronUp,
+  SearchX,
+  X,
+} from "lucide-react";
 
 import {
   Button,
@@ -157,6 +163,7 @@ export function AssetTable({
 
         {counts.matched === 0 && (
           <div className="flex flex-col items-center gap-3 py-12 text-center">
+            <SearchX aria-hidden className="size-6 text-muted-foreground" />
             <p className="text-sm font-medium">
               No assets match
               {query && ` “${query}”`}

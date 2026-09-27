@@ -2,7 +2,11 @@
 // module is used by client code, and importing the dataset here would ship
 // it to the browser. Rows are built on the server (app/_data/assets.ts).
 
-import type { AssetStatus, Criticality } from "@/app/assignment/types";
+import type {
+  AssetStatus,
+  AssetType,
+  Criticality,
+} from "@/app/assignment/types";
 
 /** "never-reported" replaces the status field when the asset has no lastSeen. */
 export type AssetRowStatus = AssetStatus | "never-reported";
@@ -15,7 +19,7 @@ export type AssetRowStatus = AssetStatus | "never-reported";
 export type AssetRow = {
   assetId: string;
   name: string;
-  type: string;
+  type: AssetType;
   /** Process-area code from the zone label, e.g. "CDU". */
   zone: string;
   zoneName: string;

@@ -1,3 +1,5 @@
+import { CircleDashed, ShieldCheck } from "lucide-react";
+
 import type { AssetDetail } from "@/app/_data/asset-detail";
 import { InfoTip } from "@/app/_components/info-tip";
 import { SeverityLabel } from "@/app/_components/severity-label";
@@ -14,7 +16,8 @@ export function ControlResults({
   return (
     <section aria-labelledby="controls" className="flex flex-col gap-3">
       <div className="flex flex-col gap-0.5">
-        <h2 id="controls" className="flex items-baseline gap-2">
+        <h2 id="controls" className="flex items-center gap-2">
+          <ShieldCheck aria-hidden className="size-4 text-muted-foreground" />
           <span className="text-base font-semibold">Security controls</span>
           <span className="text-sm text-muted-foreground">
             {resilience
@@ -22,11 +25,18 @@ export function ControlResults({
               : "Not scored"}
           </span>
         </h2>
-        <p className="text-sm text-muted-foreground">
-          {resilience
-            ? "CIS Controls v8 · lowest score first · failed checks listed under each control"
-            : "No resilience assessment yet: this asset has no control results in the data."}
-        </p>
+        {resilience ? (
+          <p className="text-sm text-muted-foreground">
+            CIS Controls v8 · lowest score first · failed checks listed under
+            each control
+          </p>
+        ) : (
+          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <CircleDashed aria-hidden className="size-4" />
+            No resilience assessment yet: this asset has no control results in
+            the data.
+          </p>
+        )}
       </div>
 
       {resilience && (

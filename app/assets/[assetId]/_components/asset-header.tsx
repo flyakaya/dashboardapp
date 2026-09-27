@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import type { AssetDetail } from "@/app/_data/asset-detail";
+import { AssetTypeIcon } from "@/app/_components/asset-type-icon";
 import { CriticalityMeter } from "@/app/_components/criticality-meter";
 import { StatusIndicator } from "@/app/_components/status-indicator";
 
@@ -33,7 +34,8 @@ export function AssetHeader({ asset }: { asset: AssetDetail }) {
             {asset.assetId}
           </span>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
+          <AssetTypeIcon type={asset.type} className="size-4" />
           {asset.type} · {asset.vendor} {asset.model} · {asset.zoneName} ·{" "}
           {asset.level}
         </p>

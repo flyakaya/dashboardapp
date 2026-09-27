@@ -1,3 +1,5 @@
+import { Progress } from "@indurex/ui";
+
 import type { SiteResilience } from "@/app/_data/resilience";
 import { InfoTip } from "@/app/_components/info-tip";
 
@@ -18,10 +20,18 @@ export function SiteScore({ site }: { site: SiteResilience }) {
           {Math.round(site.averageScore)}
         </p>
       )}
-      <p className="text-sm text-muted-foreground">
-        {site.scoredCount} of {site.assetCount} assets scored ·{" "}
-        {site.assetCount - site.scoredCount} have no resilience assessment yet
-      </p>
+      <div className="flex max-w-md flex-col gap-2">
+        <p id="coverage" className="text-sm text-muted-foreground">
+          {site.scoredCount} of {site.assetCount} assets scored ·{" "}
+          {site.assetCount - site.scoredCount} have no resilience assessment yet
+        </p>
+        {/* Coverage, not quality: how much of the site the score speaks for. */}
+        <Progress
+          value={(site.scoredCount / site.assetCount) * 100}
+          aria-labelledby="coverage"
+          className="h-1.5"
+        />
+      </div>
     </section>
   );
 }

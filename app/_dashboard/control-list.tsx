@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ListChecks } from "lucide-react";
 
 import type { ControlSummary } from "@/app/_data/resilience";
 import { InfoTip } from "@/app/_components/info-tip";
@@ -14,7 +14,11 @@ export function ControlList({ controls }: { controls: ControlSummary[] }) {
   return (
     <section aria-labelledby="controls" className="flex flex-col gap-3">
       <div className="flex flex-col gap-0.5">
-        <h2 id="controls" className="text-base font-semibold">
+        <h2
+          id="controls"
+          className="flex items-center gap-2 text-base font-semibold"
+        >
+          <ListChecks aria-hidden className="size-4 text-muted-foreground" />
           Security controls
         </h2>
         <p className="text-sm text-muted-foreground">
