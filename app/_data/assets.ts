@@ -4,24 +4,12 @@ import "server-only";
 // Server-only (the build fails if a client file imports it); client code
 // receives ready rows as props and uses ./asset-row for types and search.
 
-import { ASSETS, SITE } from "@/app/assignment/assets";
+import { ASSETS } from "@/app/assignment/assets";
 import type { Asset } from "@/app/assignment/types";
-import { VULNERABILITIES } from "@/app/assignment/vulnerabilities";
 
-import type { AssetRow } from "./asset-row";
-
-const vulnerabilitiesById = new Map(
-  VULNERABILITIES.map((v) => [v.vulnerabilityId, v]),
-);
-
-const lastSeenFormat = new Intl.DateTimeFormat("en-GB", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-  timeZone: SITE.timezone,
-});
+import { deriveStatus, levelLabel, type AssetRow } from "./asset-row";
+import { formatDateTime } from "./format";
+import { getVulnerabilitiesFor } from "./vulnerabilities";
 
 /** "Crude distillation unit (CDU)" → "CDU"; falls back to the full label. */
 function zoneCode(zone: string) {
@@ -30,10 +18,7 @@ function zoneCode(zone: string) {
 
 /** Joins one asset with its vulnerabilities into a flat, serializable row. */
 function toAssetRow(asset: Asset): AssetRow {
-  const vulns = asset.vulnerabilityIds.flatMap((id) => {
-    const v = vulnerabilitiesById.get(id);
-    return v ? [v] : [];
-  });
+  const vulns = getVulnerabilitiesFor(asset);
 
   const searchText = [
     asset.name,
@@ -58,18 +43,16 @@ function toAssetRow(asset: Asset): AssetRow {
     type: asset.type,
     zone: zoneCode(asset.zone),
     zoneName: asset.zone,
-    level: `L${asset.purdueLevel}`,
+    level: levelLabel(asset.purdueLevel),
     ip: asset.interfaces[0]?.ip ?? "",
     extraInterfaces: Math.max(asset.interfaces.length - 1, 0),
-    status: asset.lastSeen === null ? "never-reported" : asset.status,
+    status: deriveStatus(asset),
     criticality: asset.criticality,
     score: asset.resilienceScore,
     vulnCount: vulns.length,
     kevCount: vulns.filter((v) => v.isKev).length,
     lastSeen: asset.lastSeen ?? undefined,
-    lastSeenLabel: asset.lastSeen
-      ? lastSeenFormat.format(new Date(asset.lastSeen))
-      : undefined,
+    lastSeenLabel: asset.lastSeen ? formatDateTime(asset.lastSeen) : undefined,
     searchText,
   };
 }
@@ -81,11 +64,6 @@ let assetRows: AssetRow[] | undefined;
 export function getAssetRows(): AssetRow[] {
   assetRows ??= ASSETS.map(toAssetRow);
   return assetRows;
-}
-
-/** One asset by id, or undefined for an unknown id. */
-export function getAsset(assetId: string): Asset | undefined {
-  return ASSETS.find((a) => a.assetId === assetId);
 }
 
 export function getAssetCount() {

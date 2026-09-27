@@ -1,5 +1,3 @@
-import type { ReactNode } from "react";
-
 import {
   Badge,
   Card,
@@ -18,21 +16,12 @@ type TodoPageProps = {
   figmaNode: string;
   /** What remains to build, taken from the approved design. */
   todo: string[];
-  /** Rendered above the title, as in the designs. */
-  breadcrumb?: ReactNode;
 };
 
 /** Temporary placeholder for a screen that is designed but not built yet. */
-export function TodoPage({
-  title,
-  subtitle,
-  figmaNode,
-  todo,
-  breadcrumb,
-}: TodoPageProps) {
+export function TodoPage({ title, subtitle, figmaNode, todo }: TodoPageProps) {
   return (
     <div className="flex flex-col gap-6">
-      {breadcrumb}
       <div className="flex flex-col gap-0.5">
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-semibold">{title}</h1>

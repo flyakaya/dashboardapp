@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { matchesSearch } from "./asset-row";
+import { getAssetDetail } from "./asset-detail";
 import { getAssetRows } from "./assets";
 
 const rows = getAssetRows();
@@ -45,5 +46,40 @@ describe("matchesSearch", () => {
   it("finds assets by MAC and matches everything on an empty query", () => {
     expect(search("00:1B:1B:F1:1D:DB")).toEqual(["FCC-SIS-01"]);
     expect(search("   ")).toHaveLength(rows.length);
+  });
+});
+
+describe("getAssetDetail", () => {
+  it("orders evidence: critical CVEs first, lowest-scoring controls first", () => {
+    const sis = getAssetDetail("AST-0015");
+    expect(sis?.vulnerabilities.map((v) => [v.cveId, v.severity])).toEqual([
+      ["CVE-2022-38465", "critical"],
+      ["CVE-2020-15782", "high"],
+    ]);
+    expect(sis?.vulnerabilities[0]?.otherAssetCount).toBe(2);
+
+    const resilience = sis?.resilience;
+    expect(resilience?.controls).toHaveLength(16);
+    expect(resilience?.failedCheckCount).toBe(18);
+    expect(resilience?.controls[0]).toMatchObject({
+      controlId: "CIS-2",
+      score: 0,
+    });
+    expect(resilience?.notEvaluated).toEqual([
+      "CIS-9 Email and web browser protections",
+      "CIS-10 Malware defenses",
+    ]);
+  });
+
+  it("says what is missing instead of inventing it", () => {
+    const jumpHost = getAssetDetail("AST-0074");
+    expect(jumpHost?.status).toBe("never-reported");
+    expect(jumpHost?.resilience).toBeUndefined();
+    expect(jumpHost?.kevCount).toBe(1);
+    expect(
+      jumpHost?.vulnerabilities.find((v) => v.cveId === "CVE-2014-0160"),
+    ).toMatchObject({ cvss: 5, cvssVersion: "v2" });
+
+    expect(getAssetDetail("AST-9999")).toBeUndefined();
   });
 });

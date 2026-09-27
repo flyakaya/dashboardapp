@@ -7,6 +7,7 @@ import type { AssetRow } from "@/app/_data/asset-row";
 import { matchesSearch } from "@/app/_data/asset-row";
 import { useRowNavigation } from "@/app/_hooks/use-row-navigation";
 import { useUrlTableState } from "@/app/_hooks/use-url-table-state";
+import { assetHref } from "@/app/_lib/routes";
 import { selectFacetFilters } from "@/app/_lib/table/facet-filters";
 import { selectPagination } from "@/app/_lib/table/pagination";
 import { selectSortHeader } from "@/app/_lib/table/sort-header";
@@ -96,6 +97,8 @@ export function useAssetInventory(rows: AssetRow[]) {
     onRowClick: (
       event: MouseEvent,
       row: Row<typeof assetTableFeatures, AssetRow>,
-    ) => openRow(event, `/assets/${row.original.assetId}`),
+    ) =>
+      // Read at click time: the URL is the live inventory view.
+      openRow(event, assetHref(row.original.assetId, window.location.search)),
   };
 }

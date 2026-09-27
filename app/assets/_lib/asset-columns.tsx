@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   columnFacetingFeature,
   columnFilteringFeature,
@@ -30,6 +29,8 @@ import {
 import type { FacetFilterConfig } from "@/app/_lib/table/facet-filters";
 
 import type { AssetRow } from "@/app/_data/asset-row";
+
+import { AssetNameLink } from "../_components/asset-name-link";
 
 // Module scope on purpose: TanStack needs stable `features` and `columns`.
 
@@ -73,12 +74,7 @@ export const assetColumns = helper.columns([
     header: "Asset",
     sortFn: "alphanumeric",
     cell: ({ row }) => (
-      <Link
-        href={`/assets/${row.original.assetId}`}
-        className="font-mono font-medium hover:underline"
-      >
-        {row.original.name}
-      </Link>
+      <AssetNameLink assetId={row.original.assetId} name={row.original.name} />
     ),
   }),
   helper.accessor("type", { header: "Type", filterFn: "arrHas" }),

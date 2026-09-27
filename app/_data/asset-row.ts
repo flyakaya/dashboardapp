@@ -37,6 +37,19 @@ export type AssetRow = {
   searchText: string;
 };
 
+/** An asset that has never reported shows that instead of its status field. */
+export function deriveStatus(asset: {
+  status: AssetStatus;
+  lastSeen: string | null;
+}): AssetRowStatus {
+  return asset.lastSeen === null ? "never-reported" : asset.status;
+}
+
+/** Purdue level label: 3.5 → "L3.5" (the IT/OT DMZ). */
+export function levelLabel(purdueLevel: number) {
+  return `L${purdueLevel}`;
+}
+
 /** Case-insensitive substring match; a blank query matches everything. */
 export function matchesSearch(row: AssetRow, query: string) {
   const q = query.trim().toLowerCase();
