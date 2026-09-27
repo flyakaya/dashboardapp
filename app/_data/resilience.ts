@@ -7,6 +7,8 @@ import {
 } from "@/app/assignment/security-controls";
 import type { ControlSeverity } from "@/app/assignment/types";
 
+import { CHECK_SEVERITY_RANK } from "@/app/_lib/severity";
+
 // Resilience data: per-asset indices and the site-level view built from them.
 // Every number is a plain count or mean of the data; nothing is weighted or
 // imputed (the `weight` field has no documented formula).
@@ -27,13 +29,7 @@ export function getFailedCheckIds(assetId: string) {
   );
 }
 
-export const SEVERITY_RANK: Record<ControlSeverity, number> = {
-  high: 0,
-  medium: 1,
-  low: 2,
-};
-
-export type FailingCheck = {
+type FailingCheck = {
   id: string;
   title: string;
   severity: ControlSeverity;
@@ -92,7 +88,7 @@ function summarize(
   }
   const failingChecks = [...failing.values()].sort(
     (a, b) =>
-      SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] ||
+      CHECK_SEVERITY_RANK[a.severity] - CHECK_SEVERITY_RANK[b.severity] ||
       b.assetCount - a.assetCount,
   );
   return {
@@ -108,14 +104,14 @@ function summarize(
 }
 
 /** Every check, as filter options for the inventory's `?check=` chip. */
-export function getCheckOptions() {
+export async function getCheckOptions() {
   return SECURITY_CONTROLS.flatMap((c) =>
     c.subControls.map((s) => ({ value: s.id, label: `${s.id} ${s.title}` })),
   );
 }
 
 /** How the site is doing on each security control, lowest average first. */
-export function getSiteResilience(): SiteResilience {
+export async function getSiteResilience(): Promise<SiteResilience> {
   const scores = ASSETS.flatMap((a) =>
     a.resilienceScore === undefined ? [] : [a.resilienceScore],
   );

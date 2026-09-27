@@ -2,12 +2,12 @@ import "server-only";
 
 // Data access for assets: the only module that reads the raw dataset.
 // Server-only (the build fails if a client file imports it); client code
-// receives ready rows as props and uses ./asset-row for types and search.
+// receives ready rows as props and uses app/_lib/asset-row for types and search.
 
 import { ASSETS } from "@/app/assignment/assets";
 import type { Asset } from "@/app/assignment/types";
 
-import { deriveStatus, levelLabel, type AssetRow } from "./asset-row";
+import { deriveStatus, levelLabel, type AssetRow } from "@/app/_lib/asset-row";
 import { formatDateTime } from "./format";
 import { getFailedCheckIds } from "./resilience";
 import { getVulnerabilitiesFor } from "./vulnerabilities";
@@ -63,11 +63,11 @@ function toAssetRow(asset: Asset): AssetRow {
 let assetRows: AssetRow[] | undefined;
 
 /** Every asset as an inventory row. */
-export function getAssetRows(): AssetRow[] {
+export async function getAssetRows(): Promise<AssetRow[]> {
   assetRows ??= ASSETS.map(toAssetRow);
   return assetRows;
 }
 
-export function getAssetCount() {
+export async function getAssetCount() {
   return ASSETS.length;
 }

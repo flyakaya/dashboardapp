@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Indurex: OT asset inventory and resilience index
 
-## Getting Started
+## Run it
 
-First, run the development server:
+Needs Node ≥ 22.12. Run `npm install`, then `npm run dev` (http://localhost:3000). `npm run check` runs typecheck, lint, format and tests.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## What I built
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Inventory** (`/assets`): one search box (name, IP, MAC, vendor, CVE…), filters with live counts, sorting and pagination. The filters are kept in the URL, so views can be shared, the dashboard links into them, and "Back to inventory" restores them.
+- **Asset detail** (`/assets/[id]`): vulnerabilities, most severe first, each with its fix advice and a link to the other affected assets; and security-control results, lowest score first, with the failed checks listed.
+- **Resilience index** (`/`, option 3a): the site score, a plain average of the 48 scored assets shown with its coverage (48 of 80); the 18 CIS controls, weakest first. Each failing check links to the assets that failed it.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Left out on purpose:**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- the vulnerabilities and controls pages, auth, and the overview dashboard;
+- on the detail page: connections, PLC config and disks;
+- charts, trends and score bands (the data has no history, and bands would be invented thresholds);
+- control weights: the data gives no formula for them.
 
-## Learn More
+## Decisions I'm proud of
 
-To learn more about Next.js, take a look at the following resources:
+1. **No invented numbers.** Missing data is labelled, never guessed: "Not scored" is not 0. My one interpretation: an asset with no `lastSeen` is shown as **Never reported** rather than "offline".
+2. **Clear boundaries.** All data is read on the server in `app/_data` and never shipped raw to the browser. Components only display what a hook or server function gives them, and every link is built in one place (`app/_lib/routes.ts`).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## With more time
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Move search, filters and paging to a server API, with end-to-end tests. The code is already shaped for it: the data functions are async and the table state is already in the URL.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+_Stack: Next.js 16, React 19, TanStack Table v9, Tailwind v4, and a small shadcn-based UI library in `ui/` (with Storybook)._

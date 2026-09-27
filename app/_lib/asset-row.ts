@@ -1,6 +1,6 @@
 // Row type and search for the inventory. No data imports on purpose: this
 // module is used by client code, and importing the dataset here would ship
-// it to the browser. Rows are built on the server (./assets.ts).
+// it to the browser. Rows are built on the server (app/_data/assets.ts).
 
 import type { AssetStatus, Criticality } from "@/app/assignment/types";
 

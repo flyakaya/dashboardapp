@@ -6,7 +6,7 @@ import { ArrowLeft, ChevronRight } from "lucide-react";
 import { Button } from "@indurex/ui";
 
 import { getAssetDetail } from "@/app/_data/asset-detail";
-import { inventoryHref } from "@/app/_lib/routes";
+import { inventoryBackHref } from "@/app/_lib/routes";
 
 import { AssetHeader } from "./_components/asset-header";
 import { ControlResults } from "./_components/control-results";
@@ -15,7 +15,7 @@ import { VulnerabilityList } from "./_components/vulnerability-list";
 export async function generateMetadata({
   params,
 }: PageProps<"/assets/[assetId]">): Promise<Metadata> {
-  const asset = getAssetDetail((await params).assetId);
+  const asset = await getAssetDetail((await params).assetId);
   return { title: asset?.name ?? "Asset not found" };
 }
 
@@ -24,10 +24,10 @@ export default async function AssetDetailPage({
   params,
   searchParams,
 }: PageProps<"/assets/[assetId]">) {
-  const asset = getAssetDetail((await params).assetId);
+  const asset = await getAssetDetail((await params).assetId);
   if (!asset) notFound();
   // The inventory view this page was opened from (search, filters, page).
-  const backHref = inventoryHref((await searchParams).from);
+  const backHref = inventoryBackHref((await searchParams).from);
 
   return (
     <div className="flex flex-col gap-8">

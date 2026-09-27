@@ -3,8 +3,8 @@
 import { useEffect, useEffectEvent, type MouseEvent } from "react";
 import { useTable, type Row } from "@tanstack/react-table";
 
-import type { AssetRow } from "@/app/_data/asset-row";
-import { matchesSearch } from "@/app/_data/asset-row";
+import type { AssetRow } from "@/app/_lib/asset-row";
+import { matchesSearch } from "@/app/_lib/asset-row";
 import { useRowNavigation } from "@/app/_hooks/use-row-navigation";
 import { useUrlTableState } from "@/app/_hooks/use-url-table-state";
 import { assetHref } from "@/app/_lib/routes";
@@ -16,13 +16,14 @@ import { selectPagination } from "@/app/_lib/table/pagination";
 import { selectSortHeader } from "@/app/_lib/table/sort-header";
 
 import {
+  ASSET_COLUMN_HELP,
   ASSET_COLUMN_IDS,
   ASSET_FILTER_IDS,
   ASSET_FILTERS,
   assetColumns,
   HIDDEN_COLUMNS,
   assetTableFeatures,
-} from "../_lib/asset-columns";
+} from "../_table/asset-columns";
 
 const PAGE_SIZES = [20, 50, 100] as const;
 
@@ -55,7 +56,7 @@ export function useAssetInventory(
     initialState: { columnVisibility: HIDDEN_COLUMNS },
     ...urlState,
     // One search over the precomputed haystack, run once per row (via "name").
-    // No debounce: 80 rows filter in well under a millisecond per keystroke.
+    // No debounce: 80 rows filter instantly on every keystroke.
     // If search moves to the backend, debounce the request (and set
     // manualFiltering); for a much larger client-side list, useDeferredValue
     // keeps typing instant while the rows catch up.
@@ -67,9 +68,8 @@ export function useAssetInventory(
     sortDescFirst: false,
   });
 
-  // A page beyond the result would render an empty table. Syncs the URL
-  // (an external system), hence an effect.
-  // Runs only when the page or page count changes (not every render).
+  // A page beyond the result (stale link) goes back to page 1. An effect
+  // because it syncs the URL; it re-runs only when the page or count changes.
   const pageCount = table.getPageCount();
   const { pageIndex } = urlState.state.pagination;
   const onPageOutOfRange = useEffectEvent(() => resetOutOfRangePage(pageCount));
@@ -108,6 +108,8 @@ export function useAssetInventory(
     clearFilters: clearAll,
     pagination: selectPagination(table, PAGE_SIZES),
     sortHeader: selectSortHeader,
+    /** Glossary term for a column header's ⓘ, if it has one. */
+    headerHelp: (columnId: string) => ASSET_COLUMN_HELP[columnId],
     onRowClick: (
       event: MouseEvent,
       row: Row<typeof assetTableFeatures, AssetRow>,

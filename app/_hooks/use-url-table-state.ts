@@ -118,8 +118,8 @@ export function useUrlTableState({
     /**
      * Sends a page beyond the result (stale link, `?page=9`) back to page 1.
      * Call from an effect once the page count is known. Goes through the
-     * router: on first load, Next syncs native history writes only after its
-     * own effects, so `writeParams` would not be seen.
+     * router: on first load, a `history.replaceState` from this effect was
+     * not picked up by `useSearchParams` (observed), while the router is.
      */
     resetOutOfRangePage: (pageCount: number) => {
       if (pagination.pageIndex === 0 || pagination.pageIndex < pageCount) {

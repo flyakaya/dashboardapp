@@ -20,6 +20,8 @@ import {
   ThemeToggle,
 } from "@indurex/ui";
 
+import { ROUTES } from "@/app/_lib/routes";
+
 type NavItem = {
   href: string;
   label: string;
@@ -34,8 +36,8 @@ type AppSidebarProps = {
 
 /** "/" matches only itself; other items stay active on their child routes. */
 function isActive(pathname: string, href: string) {
-  return href === "/"
-    ? pathname === "/"
+  return href === ROUTES.dashboard
+    ? pathname === ROUTES.dashboard
     : pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -44,8 +46,13 @@ function isActive(pathname: string, href: string) {
 export function AppSidebar({ siteName, assetCount }: AppSidebarProps) {
   const pathname = usePathname();
   const nav: NavItem[] = [
-    { href: "/", label: "Resilience index", icon: Gauge },
-    { href: "/assets", label: "Inventory", icon: Server, badge: assetCount },
+    { href: ROUTES.dashboard, label: "Resilience index", icon: Gauge },
+    {
+      href: ROUTES.inventory,
+      label: "Inventory",
+      icon: Server,
+      badge: assetCount,
+    },
   ];
 
   return (
@@ -54,7 +61,7 @@ export function AppSidebar({ siteName, assetCount }: AppSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild tooltip={siteName}>
-              <Link href="/">
+              <Link href={ROUTES.dashboard}>
                 {/* Fills the collapsed rail, so the name clips cleanly. */}
                 <span className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-sidebar-accent">
                   <Factory className="size-4" />

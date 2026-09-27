@@ -28,6 +28,7 @@ import {
   StatusIndicator,
   statusLabel,
 } from "@/app/_components/status-indicator";
+import type { GlossaryTerm } from "@/app/_lib/glossary";
 import type { FacetFilterConfig } from "@/app/_lib/table/facet-filters";
 
 import type { AssetRow } from "@/app/_lib/asset-row";
@@ -66,6 +67,13 @@ function bucketFilter(bucketsOf: (row: AssetRow) => string[]) {
   ) => bucketsOf(row.original).some((bucket) => selected.includes(bucket));
   filterFn.autoRemove = (value) => !Array.isArray(value) || value.length === 0;
   return { getUniqueValues: bucketsOf, filterFn };
+}
+
+/** "any" for every asset with a CVE, plus "kev" when one is KEV-listed. */
+function vulnerabilityBuckets(row: AssetRow) {
+  if (row.vulnCount === 0) return [];
+  if (row.kevCount > 0) return ["any", "kev"];
+  return ["any"];
 }
 
 const byCriticality: SortFn<Features, AssetRow> = (a, b, id) =>
@@ -141,9 +149,7 @@ export const assetColumns = helper.columns([
   helper.accessor("vulnCount", {
     id: "vulnerabilities",
     header: "Vulnerabilities",
-    ...bucketFilter((row) =>
-      row.vulnCount === 0 ? [] : row.kevCount > 0 ? ["any", "kev"] : ["any"],
-    ),
+    ...bucketFilter(vulnerabilityBuckets),
     cell: ({ row }) => (
       <span className="font-mono">
         {row.original.vulnCount}
@@ -229,6 +235,14 @@ export const ASSET_FILTER_IDS = ASSET_FILTERS.map((f) => f.id);
 
 /** Columns that exist for filtering only and are never rendered. */
 export const HIDDEN_COLUMNS = { check: false } as const;
+
+/** Column headers that get an ⓘ, and the glossary term each explains. */
+export const ASSET_COLUMN_HELP: Partial<Record<string, GlossaryTerm>> = {
+  level: "purdueLevel",
+  status: "status",
+  resilience: "resilienceScore",
+  vulnerabilities: "kev",
+};
 
 /** Every column id, in order; all are sortable (`?sort=resilience.desc`). */
 export const ASSET_COLUMN_IDS = [

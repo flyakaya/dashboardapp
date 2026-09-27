@@ -2,7 +2,9 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
 import type { ControlSummary } from "@/app/_data/resilience";
+import { InfoTip } from "@/app/_components/info-tip";
 import { SeverityLabel } from "@/app/_components/severity-label";
+import { inventoryHref } from "@/app/_lib/routes";
 
 const COLUMNS =
   "grid grid-cols-[minmax(0,1fr)_6rem_5rem_6rem_1rem] items-center gap-x-3 px-3";
@@ -23,14 +25,22 @@ export function ControlList({ controls }: { controls: ControlSummary[] }) {
 
       <div className="overflow-x-auto">
         <div className="min-w-[36rem] text-sm">
+          {/* Header text is visual only (cells carry sr-only labels); the ⓘ stay reachable. */}
           <div
-            aria-hidden
             className={`${COLUMNS} h-8 border-b text-xs font-medium text-muted-foreground`}
           >
-            <span>Control</span>
-            <span className="text-right">Avg score</span>
-            <span className="text-right">Assets</span>
-            <span className="text-right">Failed high</span>
+            <span aria-hidden>Control</span>
+            <span className="inline-flex items-center justify-end gap-1">
+              <span aria-hidden>Avg score</span>
+              <InfoTip term="controlScore" label="Avg score" />
+            </span>
+            <span aria-hidden className="text-right">
+              Assets
+            </span>
+            <span className="inline-flex items-center justify-end gap-1">
+              <span aria-hidden>Failed high</span>
+              <InfoTip term="failedHigh" label="Failed high" />
+            </span>
           </div>
           <ul>
             {controls.map((control) => (
@@ -87,7 +97,7 @@ export function ControlList({ controls }: { controls: ControlSummary[] }) {
                             className="text-xs text-muted-foreground"
                           />
                           <Link
-                            href={`/assets?check=${encodeURIComponent(check.id)}`}
+                            href={inventoryHref({ check: check.id })}
                             className="ml-auto shrink-0 font-mono text-xs hover:underline"
                           >
                             {check.assetCount}{" "}

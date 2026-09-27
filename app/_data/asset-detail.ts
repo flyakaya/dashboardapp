@@ -10,9 +10,15 @@ import type {
   Severity,
 } from "@/app/assignment/types";
 
-import { deriveStatus, levelLabel, type AssetRowStatus } from "./asset-row";
+import {
+  deriveStatus,
+  levelLabel,
+  type AssetRowStatus,
+} from "@/app/_lib/asset-row";
+import { CHECK_SEVERITY_RANK, CVE_SEVERITY_RANK } from "@/app/_lib/severity";
+
 import { formatDate, formatDateTime, formatSiteDate } from "./format";
-import { getResilienceIndex, SEVERITY_RANK } from "./resilience";
+import { getResilienceIndex } from "./resilience";
 import { getVulnerabilitiesFor } from "./vulnerabilities";
 
 // View-model for the asset detail page: everything it renders, ordered and
@@ -34,13 +40,13 @@ export type AssetVulnerability = {
   otherAssetCount: number;
 };
 
-export type FailedCheck = {
+type FailedCheck = {
   id: string;
   title: string;
   severity: ControlSeverity;
 };
 
-export type ControlResultView = {
+type ControlResultView = {
   controlId: string;
   name: string;
   score: number;
@@ -74,14 +80,22 @@ export type AssetDetail = {
   };
 };
 
-const SEVERITY_ORDER: Record<Severity, number> = {
-  critical: 0,
-  high: 1,
-  medium: 2,
-  low: 3,
-};
 const controlsById = new Map(SECURITY_CONTROLS.map((c) => [c.controlId, c]));
 const controlOrder = new Map(SECURITY_CONTROLS.map((c, i) => [c.controlId, i]));
+
+/** CVSS v3 when present, else v2 (older advisories), with its version. */
+function cvssOf(v: {
+  cvssV3Score?: number;
+  cvssV2Score?: number;
+}): Pick<AssetVulnerability, "cvss" | "cvssVersion"> {
+  if (v.cvssV3Score !== undefined) {
+    return { cvss: v.cvssV3Score, cvssVersion: "v3" };
+  }
+  if (v.cvssV2Score !== undefined) {
+    return { cvss: v.cvssV2Score, cvssVersion: "v2" };
+  }
+  return {};
+}
 
 function toVulnerabilities(
   vulns: ReturnType<typeof getVulnerabilitiesFor>,
@@ -91,13 +105,7 @@ function toVulnerabilities(
       cveId: v.cveId,
       title: v.title,
       severity: v.severity,
-      cvss: v.cvssV3Score ?? v.cvssV2Score,
-      cvssVersion:
-        v.cvssV3Score !== undefined
-          ? ("v3" as const)
-          : v.cvssV2Score !== undefined
-            ? ("v2" as const)
-            : undefined,
+      ...cvssOf(v),
       isKev: v.isKev,
       publishedLabel: formatDate(v.publishedAt),
       summary: v.summary,
@@ -106,7 +114,7 @@ function toVulnerabilities(
     }))
     .sort(
       (a, b) =>
-        SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity] ||
+        CVE_SEVERITY_RANK[a.severity] - CVE_SEVERITY_RANK[b.severity] ||
         (b.cvss ?? 0) - (a.cvss ?? 0),
     );
 }
@@ -126,7 +134,10 @@ function toResilience(assetId: string): AssetDetail["resilience"] {
       failedChecks: result.subControls
         .filter((s) => s.status === "failed")
         .map(({ id, title, severity }) => ({ id, title, severity }))
-        .sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity]),
+        .sort(
+          (a, b) =>
+            CHECK_SEVERITY_RANK[a.severity] - CHECK_SEVERITY_RANK[b.severity],
+        ),
     }))
     // Lowest score first; ties keep the CIS catalog order.
     .sort(
@@ -151,9 +162,9 @@ function toResilience(assetId: string): AssetDetail["resilience"] {
  * Everything the detail page shows for one asset, or undefined if unknown.
  * `cache` dedupes per request: generateMetadata and the page share one build.
  */
-export const getAssetDetail = cache(function getAssetDetail(
+export const getAssetDetail = cache(async function getAssetDetail(
   assetId: string,
-): AssetDetail | undefined {
+): Promise<AssetDetail | undefined> {
   const asset = ASSETS.find((a) => a.assetId === assetId);
   if (!asset) return undefined;
 

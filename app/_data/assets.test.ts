@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { matchesSearch } from "./asset-row";
+import { matchesSearch } from "@/app/_lib/asset-row";
 import { getAssetDetail } from "./asset-detail";
 import { getAssetRows } from "./assets";
 import { getSiteResilience } from "./resilience";
 
-const rows = getAssetRows();
+const rows = await getAssetRows();
+const site = await getSiteResilience();
 const search = (q: string) =>
   rows.filter((r) => matchesSearch(r, q)).map((r) => r.name);
 
@@ -51,8 +52,8 @@ describe("matchesSearch", () => {
 });
 
 describe("getAssetDetail", () => {
-  it("orders evidence: critical CVEs first, lowest-scoring controls first", () => {
-    const sis = getAssetDetail("AST-0015");
+  it("orders evidence: critical CVEs first, lowest-scoring controls first", async () => {
+    const sis = await getAssetDetail("AST-0015");
     expect(sis?.vulnerabilities.map((v) => [v.cveId, v.severity])).toEqual([
       ["CVE-2022-38465", "critical"],
       ["CVE-2020-15782", "high"],
@@ -72,8 +73,8 @@ describe("getAssetDetail", () => {
     ]);
   });
 
-  it("says what is missing instead of inventing it", () => {
-    const jumpHost = getAssetDetail("AST-0074");
+  it("says what is missing instead of inventing it", async () => {
+    const jumpHost = await getAssetDetail("AST-0074");
     expect(jumpHost?.status).toBe("never-reported");
     expect(jumpHost?.resilience).toBeUndefined();
     expect(jumpHost?.kevCount).toBe(1);
@@ -81,13 +82,11 @@ describe("getAssetDetail", () => {
       jumpHost?.vulnerabilities.find((v) => v.cveId === "CVE-2014-0160"),
     ).toMatchObject({ cvss: 5, cvssVersion: "v2" });
 
-    expect(getAssetDetail("AST-9999")).toBeUndefined();
+    expect(await getAssetDetail("AST-9999")).toBeUndefined();
   });
 });
 
 describe("getSiteResilience", () => {
-  const site = getSiteResilience();
-
   it("averages only scored assets and states coverage", () => {
     expect(Math.round(site.averageScore ?? 0)).toBe(67);
     expect(site.scoredCount).toBe(48);

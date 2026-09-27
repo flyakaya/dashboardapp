@@ -1,12 +1,13 @@
 import "server-only";
 
-import { getSite } from "./site";
+import { SITE } from "@/app/assignment/assets";
 
 // Formatted once on the server so the browser only displays strings (no
 // timezone or locale drift). Timestamps use the site's timezone; date-only
 // values (stored as UTC midnight) use UTC so the calendar day never shifts.
 
-const { timezone } = getSite();
+// Static site config; read directly so formatters can be built at load time.
+const { timezone } = SITE;
 
 const dateTime = new Intl.DateTimeFormat("en-GB", {
   day: "2-digit",

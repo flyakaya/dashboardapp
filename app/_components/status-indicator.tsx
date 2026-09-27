@@ -1,6 +1,6 @@
 import { cn } from "@indurex/ui";
 
-import type { AssetRowStatus } from "@/app/_data/asset-row";
+import type { AssetRowStatus } from "@/app/_lib/asset-row";
 
 // App component (move to @indurex/ui later as an OT status primitive).
 

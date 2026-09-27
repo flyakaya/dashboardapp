@@ -26,15 +26,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: { default: "Indurex", template: "%s · Indurex" },
-  description: `OT/ICS security dashboard — ${getSite().name}`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSite();
+  return {
+    title: { default: "Indurex", template: "%s · Indurex" },
+    description: `OT/ICS security dashboard — ${site.name}`,
+  };
+}
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   // SidebarProvider writes this cookie when the sidebar is toggled; reading it
   // here keeps a collapsed sidebar collapsed across reloads without a flash.
   const sidebarOpen = (await cookies()).get("sidebar_state")?.value !== "false";
+  const [site, assetCount] = await Promise.all([getSite(), getAssetCount()]);
 
   return (
     // Dark is the server-rendered default; ThemeScript swaps it before paint
@@ -51,10 +55,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <TooltipProvider>
           <SidebarProvider defaultOpen={sidebarOpen}>
             {/* Server-computed props: the client sidebar must not import the dataset. */}
-            <AppSidebar
-              siteName={getSite().name}
-              assetCount={getAssetCount()}
-            />
+            <AppSidebar siteName={site.name} assetCount={assetCount} />
             <SidebarInset className="px-8 pt-6 pb-8">
               {/* Visible toggle (also ⌘B and the rail); opens the sheet on phones. */}
               <SidebarTrigger className="mb-4 -ml-2" />

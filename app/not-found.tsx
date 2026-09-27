@@ -3,6 +3,8 @@ import Link from "next/link";
 
 import { Button } from "@indurex/ui";
 
+import { inventoryHref } from "@/app/_lib/routes";
+
 export const metadata: Metadata = { title: "Page not found" };
 
 // Renders inside the root layout's SidebarInset, which is already <main>.
@@ -16,7 +18,7 @@ export default function NotFound() {
         </p>
       </div>
       <Button variant="outline" asChild>
-        <Link href="/assets">Back to inventory</Link>
+        <Link href={inventoryHref()}>Back to inventory</Link>
       </Button>
     </div>
   );

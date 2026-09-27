@@ -13,10 +13,11 @@ import {
   TableRow,
 } from "@indurex/ui";
 
-import type { AssetRow } from "@/app/_data/asset-row";
+import type { AssetRow } from "@/app/_lib/asset-row";
 import type { FacetOption } from "@/app/_lib/table/facet-filters";
-import { FacetFilter } from "@/app/_components/facet-filter";
-import { TablePagination } from "@/app/_components/table-pagination";
+import { InfoTip } from "@/app/_components/info-tip";
+import { FacetFilter } from "@/app/_components/table/facet-filter";
+import { TablePagination } from "@/app/_components/table/table-pagination";
 
 import { useAssetInventory } from "../_hooks/use-asset-inventory";
 
@@ -41,6 +42,7 @@ export function AssetTable({
     clearFilters,
     pagination,
     sortHeader,
+    headerHelp,
     onRowClick,
   } = useAssetInventory(rows, checkOptions);
 
@@ -102,24 +104,34 @@ export function AssetTable({
                 {group.headers.map((header) => {
                   const { sorted, ariaSort, toggle } = sortHeader(header);
                   const SortIcon = sorted ? SORT_ICON[sorted] : ChevronsUpDown;
+                  const help = headerHelp(header.column.id);
                   return (
                     <TableHead key={header.id} aria-sort={ariaSort}>
-                      <button
-                        type="button"
-                        onClick={toggle}
-                        data-sorted={sorted !== false}
-                        className="group/sort -mx-1 inline-flex items-center gap-1 rounded-sm px-1 text-xs font-medium text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none data-[sorted=true]:text-foreground"
-                      >
-                        <table.FlexRender header={header} />
-                        <SortIcon
-                          aria-hidden
-                          className={
-                            sorted
-                              ? "size-3.5"
-                              : "size-3.5 opacity-0 group-hover/sort:opacity-100 group-focus-visible/sort:opacity-100"
-                          }
-                        />
-                      </button>
+                      {/* The ⓘ sits beside the sort button, never inside it. */}
+                      <span className="inline-flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={toggle}
+                          data-sorted={sorted !== false}
+                          className="group/sort -mx-1 inline-flex items-center gap-1 rounded-sm px-1 text-xs font-medium text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none data-[sorted=true]:text-foreground"
+                        >
+                          <table.FlexRender header={header} />
+                          <SortIcon
+                            aria-hidden
+                            className={
+                              sorted
+                                ? "size-3.5"
+                                : "size-3.5 opacity-0 group-hover/sort:opacity-100 group-focus-visible/sort:opacity-100"
+                            }
+                          />
+                        </button>
+                        {help && (
+                          <InfoTip
+                            term={help}
+                            label={String(header.column.columnDef.header)}
+                          />
+                        )}
+                      </span>
                     </TableHead>
                   );
                 })}

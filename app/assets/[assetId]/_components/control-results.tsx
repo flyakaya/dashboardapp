@@ -1,4 +1,5 @@
 import type { AssetDetail } from "@/app/_data/asset-detail";
+import { InfoTip } from "@/app/_components/info-tip";
 import { SeverityLabel } from "@/app/_components/severity-label";
 
 const COLUMNS =
@@ -31,15 +32,24 @@ export function ControlResults({
       {resilience && (
         <div className="overflow-x-auto">
           <div className="min-w-[36rem] text-sm">
+            {/* Header text is visual only (cells carry sr-only labels); the ⓘ stay reachable. */}
             <div
-              aria-hidden
               className={`${COLUMNS} h-8 border-b text-xs font-medium text-muted-foreground`}
             >
-              <span>Control</span>
-              <span className="text-right">Score</span>
-              <span className="text-right">Passed</span>
-              <span className="text-right">Failed</span>
-              <span className="text-right">N/A</span>
+              <span aria-hidden>Control</span>
+              <span aria-hidden className="text-right">
+                Score
+              </span>
+              <span aria-hidden className="text-right">
+                Passed
+              </span>
+              <span aria-hidden className="text-right">
+                Failed
+              </span>
+              <span className="inline-flex items-center justify-end gap-1">
+                <span aria-hidden>N/A</span>
+                <InfoTip term="notApplicable" label="N/A" />
+              </span>
             </div>
             <ul>
               {resilience.controls.map((control) => (

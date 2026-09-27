@@ -6,6 +6,10 @@ import { getCheckOptions } from "@/app/_data/resilience";
 
 export const metadata: Metadata = { title: "Asset inventory" };
 
-export default function AssetInventoryPage() {
-  return <AssetTable rows={getAssetRows()} checkOptions={getCheckOptions()} />;
+export default async function AssetInventoryPage() {
+  const [rows, checkOptions] = await Promise.all([
+    getAssetRows(),
+    getCheckOptions(),
+  ]);
+  return <AssetTable rows={rows} checkOptions={checkOptions} />;
 }
